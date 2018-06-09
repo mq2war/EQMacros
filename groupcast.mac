@@ -1,0 +1,136 @@
+#include casting.inc
+#Event SpellBlocked   "#*#Your spell would not have taken hold on your target.#*#"
+#Event WrongSpell "#*# Could Not find the spell #*#"
+
+|#Event WrongSpell     "[MQ2] |Could Not find the spell ${Param0} in your spell book.|"
+
+sub main
+
+/declare size int local
+/declare x int local
+/declare gem int local
+/declare force int local
+/declare blocked int outer
+/declare firstspell string local
+
+
+|########################################################
+
+
+|Spell Check
+/echo ${Param0}
+
+|########## Set Vars ###############
+|Group size
+/varset size ${Group.Members}
+
+|Spell Blocked
+/varset blocked 0
+
+|Spell Gem  - hardcoded
+/varset gem 1
+
+|Remem Spell Force
+/varset force 0
+
+/varset firstspell ${Me.Gem[${gem}].Name}
+
+
+/echo Original spell ${firstspell}
+
+|#####Mem Spell to Cast########
+
+/call CastMemSpell "${Param0}" ${gem} ${force}
+
+/doevents
+
+|###### Cast spell on all group members #####
+
+/for x 0 to ${size}
+/echo ${Group.Member[${x}].Name}
+
+/target pc ${Group.Member[${x}].Name}
+
+/call SpellReady "${Param0}"
+
+
+/echo Casting on ${Target.Name}
+/delay 1
+
+
+|#####Casting#######
+
+
+:castit
+/echo in castit
+/delay 5
+
+/cast "${Param0}"
+
+/delay 5
+
+
+/call CastWait "${Param0}"
+
+
+|### Check target buffs for spell ID ###
+/if (!${Target.Buff[${Param0}].ID}) {
+
+/echo no Buff
+
+/delay 5
+
+/doevents
+
+|######### Check if spell was blocked ############
+
+/if (${blocked} == 0) {
+
+/goto :castit
+
+} else {
+
+    /goto :next
+
+}
+
+}  
+
+:next
+|#### Set blocked to 0 ####
+/varset blocked 0	
+/next x
+
+|#####Mem Original Spell########
+
+/call CastMemSpell "${firstspell}" ${gem} ${force}
+
+
+/if (!${Me.Sitting}) {
+
+|#### Sit your candy ass down ####
+    /sit
+
+}
+
+
+
+/return
+
+
+Sub Event_SpellBlocked
+    /varset blocked  1
+    |## Tell group, comment out if grouping with others.  ###
+
+    /g cannot cast on ${Target}
+        
+    /return
+
+Sub Event_WrongSpell
+   
+    
+    /echo Incorrect spell, ending
+
+    /endmacro
+        
+    /return
