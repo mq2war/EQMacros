@@ -78,7 +78,7 @@ Sub CastWait(string WaitSpell)
         }
     /return
 
-
+|----------------------------------------------------------------------------------------------------|
 Sub SpellReady(string WaitSpell)
 
 |####### Modified from kissassist.mac #########
@@ -86,10 +86,12 @@ Sub SpellReady(string WaitSpell)
        /declare WaitTimer timer 0
 
        /echo ${WaitSpell}
+
+       /echo ${Me.Gem[${WaitSpell}]}
                  
-       /if (${Me.Gem[${WhatMemSpell}]}) {
-            /varset WaitTimer 200
-            /while (!${Me.SpellReady[${WhatMemSpell}]} && ${WaitTimer}) {
+       /if (${Me.Gem[${WaitSpell}]}) {
+            /varset WaitTimer 300
+            /while (!${Me.SpellReady[${WaitSpell}]} && ${WaitTimer}) {
                 /delay 5
             }
             }
